@@ -101,7 +101,7 @@ Set the following values before execution:
 All possible single-site substitutions are generated for the supplied wild-type sequence:
 
 \[
-L \times 19
+L x 19
 \]
 
 where \(L\) denotes sequence length and 19 corresponds to all non-wild-type amino acid substitutions at each residue position.
