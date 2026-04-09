@@ -1,0 +1,28 @@
+{
+  "wt_sequence": "ACD",
+  "pdb_path": "",
+  "pdb_chain_id": "A",
+  "device_mode": "cpu",
+  "top_k_mid": 5,
+  "top_k_final": 3,
+  "gpr_model_path": "",
+  "w_gpr_s1": 0.35,
+  "w_esm2_s1": 0.65,
+  "w_gpr_final": 0.1,
+  "w_esm2_final": 0.2,
+  "w_esmiF_final": 0.7,
+  "normalization": "rank_percentile",
+  "use_gpr_csv": true,
+  "gpr_csv_path": "gpr_smoke.csv",
+  "use_esm2_csv": true,
+  "esm2_csv_path": "esm2_smoke.csv",
+  "use_esmiF_csv": true,
+  "esmiF_csv_path": "esmif_smoke.csv",
+  "esm2_size": "esm2_t33_650M_UR50D",
+  "esm_if_variant": "esm_if1_gvp4_t16_142M_UR50",
+  "esm2_scoring_mode": "p_mut_only",
+  "checkpoint_every": 20,
+  "resume_runs": false,
+  "results_dir": "/results"
+}
+

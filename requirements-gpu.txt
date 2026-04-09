@@ -1,0 +1,3 @@
+transformers==5.0.0
+fair-esm==2.0.0
+biotite==1.6.0
