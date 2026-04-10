@@ -168,9 +168,9 @@ All outputs are written to **`/results`**.
 |---|---:|---|
 | `w_gpr_s1` | `0.35` | GPR contribution during Stage 1 |
 | `w_esm2_s1` | `0.65` | ESM-2 contribution during Stage 1 |
-| `w_gpr_final` | `0.10` | GPR contribution in final scoring |
-| `w_esm2_final` | `0.20` | ESM-2 contribution in final scoring |
-| `w_esmiF_final` | `0.70` | ESM-IF contribution in final scoring |
+| `w_gpr_final` | `0.05` | GPR contribution in final scoring |
+| `w_esm2_final` | `0.70` | ESM-2 contribution in final scoring |
+| `w_esmiF_final` | `0.25` | ESM-IF contribution in final scoring |
 
 ### Normalization
 
