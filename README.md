@@ -269,8 +269,8 @@ If you use EvoMax, please cite the accompanying paper:
 
 ```bibtex
 @article{evomax2026,
-  title   = {EvoMax: Deterministic ranking of single-site protein variants using evolutionary and structural priors},
-  author  = {AUTHOR_1 and AUTHOR_2 and AUTHOR_3},
+  title   = {Adaptive Model-Guided Evolution of Compact Eukaryotic Nucleases Enables Efficient Genome Editing},
+  author  = {Wan, Shijie and Gold, Jackson and Mogilevsky, Casey S. and Talikoti, Ananya and Chen, Tianrong and Gupta, Aman and Biswas, Trisha and You, Zheng and Acharya, Vir and Chatterjee, Pranam and Wang, Xiao and Gao, Xue},
   journal = {Nature Biotechnology},
   year    = {2026},
   doi     = {PASTE_DOI_HERE}
