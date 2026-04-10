@@ -14,7 +14,8 @@ RUN python -m pip install --upgrade pip setuptools wheel && \
 COPY evomax_runner.py /app/evomax_runner.py
 COPY tests /app/tests
 
-RUN python -m py_compile /app/evomax_runner.py /app/tests/validate_smoke.py && \
+RUN python -m py_compile /app/evomax_runner.py && \
+    python -m py_compile /app/tests/validate_smoke.py && \
     mkdir -p /data /results
 
 ENTRYPOINT ["python", "/app/evomax_runner.py"]
@@ -52,7 +53,8 @@ RUN python -m pip install \
 COPY evomax_runner.py /app/evomax_runner.py
 COPY tests /app/tests
 
-RUN python -m py_compile /app/evomax_runner.py /app/tests/validate_smoke.py && \
+RUN python -m py_compile /app/evomax_runner.py && \
+    python -m py_compile /app/tests/validate_smoke.py && \
     mkdir -p /data /results /models/huggingface
 
 ENTRYPOINT ["python", "/app/evomax_runner.py"]
