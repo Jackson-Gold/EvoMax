@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (C) 2026 The Trustees of the University of Pennsylvania.
+# Licensed under the Penn Software License (non-commercial). See LICENSE file.
 from __future__ import annotations
 
 import argparse

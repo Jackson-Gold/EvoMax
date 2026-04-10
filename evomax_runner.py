@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (C) 2026 The Trustees of the University of Pennsylvania.
+# Licensed under the Penn Software License (non-commercial). See LICENSE file.
 from __future__ import annotations
 
 import argparse
@@ -292,22 +294,12 @@ def install_blosum_kernel_shim():
 
     aa2idx = {aa: idx for idx, aa in enumerate(AA20)}
     blosum = np.zeros((20, 20), dtype=float)
-    try:
-        from Bio.Align import substitution_matrices
+    from Bio.Align import substitution_matrices
 
-        raw = substitution_matrices.load("BLOSUM62")
-        for aa_left in AA20:
-            for aa_right in AA20:
-                blosum[aa2idx[aa_left], aa2idx[aa_right]] = float(raw[aa_left, aa_right])
-    except Exception:
-        from Bio.SubsMat import MatrixInfo as matinfo
-
-        raw = matinfo.blosum62
-        for (aa_left, aa_right), score in raw.items():
-            if aa_left in aa2idx and aa_right in aa2idx:
-                left = aa2idx[aa_left]
-                right = aa2idx[aa_right]
-                blosum[left, right] = blosum[right, left] = score
+    raw = substitution_matrices.load("BLOSUM62")
+    for aa_left in AA20:
+        for aa_right in AA20:
+            blosum[aa2idx[aa_left], aa2idx[aa_right]] = float(raw[aa_left, aa_right])
     blosum = (blosum - blosum.min()) / (blosum.max() - blosum.min())
 
     class BlosumKernel(Kernel):
