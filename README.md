@@ -31,7 +31,7 @@ A **Docker image** is also provided for reproducible execution. See [`DOCKER_SET
 
 EvoMax is a two-stage computational pipeline for exhaustive **single-amino-acid substitution** screening. The framework first performs broad, high-throughput prioritization using **GPR** and **precomputed ESM-2** scores, and then refines the top candidates using **ESM-IF** conditioned on the supplied protein structure. Final rankings are generated through robust score normalization and weighted aggregation.
 
-This repository accompanies the manuscript published in **Nature Biotechnology**.
+This repository accompanies the manuscript currently under review.
 
 ---
 
@@ -271,9 +271,8 @@ If you use EvoMax, please cite the accompanying paper:
 @article{evomax2026,
   title   = {Adaptive Model-Guided Evolution of Compact Eukaryotic Nucleases Enables Efficient Genome Editing},
   author  = {Wan, Shijie and Gold, Jackson and Mogilevsky, Casey S. and Talikoti, Ananya and Chen, Tianrong and Gupta, Aman and Biswas, Trisha and You, Zheng and Acharya, Vir and Chatterjee, Pranam and Wang, Xiao and Gao, Xue},
-  journal = {Nature Biotechnology},
   year    = {2026},
-  doi     = {PASTE_DOI_HERE}
+  note    = {Submitted}
 }
 ```
 
