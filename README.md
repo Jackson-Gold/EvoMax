@@ -1,7 +1,7 @@
 <div align="center">
 
 # EvoMax
-### *Deterministic ranking of single-site protein variants using evolutionary, structural, and similarity-based priors*
+### *Adaptive Model-Guided Evolution of Compact Eukaryotic Nucleases Enables Efficient Genome Editing*
 
 [![Hardware](https://img.shields.io/badge/Hardware-GPU%20only-7C3AED?style=flat-square)](#runtime)
 [![Models](https://img.shields.io/badge/Models-ESM--2%20%7C%20ESM--IF%20%7C%20GPR-2563EB?style=flat-square)](#model-specifications)
@@ -274,12 +274,6 @@ If you use EvoMax, please cite the accompanying paper:
   year    = {2026},
   note    = {Submitted}
 }
-```
-
-And include the direct paper link here:
-
-```text
-PASTE_YOUR_PAPER_LINK_HERE
 ```
 
 ---
