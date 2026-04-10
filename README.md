@@ -12,6 +12,21 @@
 
 ---
 
+## System Requirements
+
+> **This pipeline requires a Linux machine with an NVIDIA GPU and CUDA.** It has been tested on Linux with CUDA 12.4. CPU-only execution is not supported for the full pipeline.
+
+| Requirement | Details |
+|---|---|
+| **OS** | Linux |
+| **GPU** | NVIDIA GPU (CUDA-compatible) |
+| **CUDA** | 12.4+ recommended |
+| **Python** | 3.11 |
+
+A **Docker image** is also provided for reproducible execution. See [`DOCKER_SETUP.md`](DOCKER_SETUP.md) for build and run instructions.
+
+---
+
 ## Overview
 
 EvoMax is a two-stage computational pipeline for exhaustive **single-amino-acid substitution** screening. The framework first performs broad, high-throughput prioritization using **GPR** and **precomputed ESM-2** scores, and then refines the top candidates using **ESM-IF** conditioned on the supplied protein structure. Final rankings are generated through robust score normalization and weighted aggregation.
@@ -40,6 +55,7 @@ EvoMax, is a data efficient framework for rapid optimization of protein function
 
 ## Table of Contents
 
+- [System Requirements](#system-requirements)
 - [Execution](#execution)
 - [Runtime](#runtime)
 - [Inputs](#inputs)
