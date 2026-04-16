@@ -1,6 +1,10 @@
 joblib==1.5.3
 tqdm==4.67.3
-biopython==1.84
+biopython==1.78
 pandas==2.2.2
 numpy==2.0.2
-scikit-learn==1.5.2
+transformers==5.0.0
+fair-esm==2.0.0
+biotite==1.6.0
+torch-geometric==2.7.0
+torch-scatter==2.1.2
