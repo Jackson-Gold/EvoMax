@@ -1,0 +1,36 @@
+# EvoMax Conda environment
+# Usage:
+#   conda env create -f environment.yml
+#   conda activate evomax
+#
+# Notes:
+# - This environment targets the full EvoMax pipeline described in the README.
+# - It assumes a Linux host with an NVIDIA driver compatible with CUDA 12.4.
+# - For portable smoke testing on non-GPU machines, prefer the Docker smoke target.
+
+name: evomax
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - joblib==1.5.3
+      - tqdm==4.67.3
+      - biopython==1.78
+      - pandas==2.2.2
+      - numpy==2.0.2
+      - scikit-learn==1.5.2
+      - transformers==5.0.0
+      - fair-esm==2.0.0
+      - biotite==1.6.0
+      - --extra-index-url https://download.pytorch.org/whl/cu124
+      - torch==2.6.0
+      - --find-links https://data.pyg.org/whl/torch-2.6.0+cu124.html
+      - pyg_lib
+      - torch-scatter==2.1.2
+      - torch-sparse
+      - torch-cluster
+      - torch-spline-conv
+      - torch-geometric==2.7.0
