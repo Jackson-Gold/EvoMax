@@ -1,7 +1,7 @@
 <div align="center">
 
 # EvoMax
-### *Adaptive Model-Guided Evolution of Compact Eukaryotic Nucleases Enables Efficient Genome Editing*
+### *Adaptive model-guided protein evolution with sparse data optimizes compact eukaryotic genome editors*
 
 [![Hardware](https://img.shields.io/badge/Hardware-GPU%20only-7C3AED?style=flat-square)](#runtime)
 [![Models](https://img.shields.io/badge/Models-ESM--2%20%7C%20ESM--IF%20%7C%20GPR-2563EB?style=flat-square)](#model-specifications)
@@ -32,7 +32,7 @@ A **Docker image** is also provided for reproducible execution. See [`DOCKER_SET
 
 EvoMax is a two-stage computational pipeline for exhaustive **single-amino-acid substitution** screening. The framework first performs broad, high-throughput prioritization using **GPR** and **precomputed ESM-2** scores, and then refines the top candidates using **ESM-IF** conditioned on the supplied protein structure. Final rankings are generated through robust score normalization and weighted aggregation.
 
-This repository accompanies the manuscript currently under review.
+This repository accompanies the manuscript accepted in principle at Nature Biotechnology.
 
 ---
 
@@ -222,10 +222,10 @@ If you use EvoMax, please cite the accompanying paper:
 
 ```bibtex
 @article{evomax2026,
-  title   = {Adaptive Model-Guided Evolution of Compact Eukaryotic Nucleases Enables Efficient Genome Editing},
+  title   = {Adaptive model-guided protein evolution with sparse data optimizes compact eukaryotic genome editors},
   author  = {Wan, Shijie and Gold, Jackson and Mogilevsky, Casey S. and Talikoti, Ananya and Chen, Tianrong and Gupta, Aman and Biswas, Trisha and You, Zheng and Acharya, Vir and Chatterjee, Pranam and Wang, Xiao and Gao, Xue},
   year    = {2026},
-  note    = {Submitted}
+  note    = {Accepted in principle at Nature Biotechnology}
 }
 ```
 
