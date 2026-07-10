@@ -25,7 +25,7 @@ dependencies:
       - scipy==1.14.1
       - transformers==5.0.0
       - fair-esm==2.0.0
-      - biotite==1.6.0
+      - biotite==0.40.0
       - --extra-index-url https://download.pytorch.org/whl/cu124
       - torch==2.6.0
       - --find-links https://data.pyg.org/whl/torch-2.6.0+cu124.html
