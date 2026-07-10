@@ -239,7 +239,7 @@ If you use EvoMax, please cite the accompanying paper:
 ```bibtex
 @article{evomax2026,
   title   = {Adaptive model-guided protein evolution with sparse data optimizes compact eukaryotic genome editors},
-  author  = {Wan, Shijie and Gold, Jackson and Mogilevsky, Casey S. and Talikoti, Ananya and Chen, Tianrong and Gupta, Aman and Biswas, Trisha and You, Zheng and Acharya, Vir and Chatterjee, Pranam and Wang, Xiao and Gao, Xue},
+  author  = {Wan, Shijie and Gold, Jackson and Vure, Pranay and Mogilevsky, Casey S. and Talikoti, Ananya and Chen, Tianrong and Gupta, Aman and Biswas, Trisha and You, Zheng and Acharya, Vir and Chatterjee, Pranam and Wang, Xiao and Gao, Xue},
   year    = {2026},
   note    = {Accepted in principle at Nature Biotechnology}
 }
