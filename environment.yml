@@ -18,19 +18,16 @@ dependencies:
   - pip:
       - joblib==1.5.3
       - tqdm==4.67.3
-      - biopython==1.78
+      - biopython==1.84
       - pandas==2.2.2
       - numpy==2.0.2
       - scikit-learn==1.5.2
+      - scipy==1.14.1
       - transformers==5.0.0
       - fair-esm==2.0.0
       - biotite==1.6.0
       - --extra-index-url https://download.pytorch.org/whl/cu124
       - torch==2.6.0
       - --find-links https://data.pyg.org/whl/torch-2.6.0+cu124.html
-      - pyg_lib
       - torch-scatter==2.1.2
-      - torch-sparse
-      - torch-cluster
-      - torch-spline-conv
       - torch-geometric==2.7.0

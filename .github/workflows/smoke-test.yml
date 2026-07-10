@@ -1,0 +1,41 @@
+name: Smoke test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build fixture-tested image
+        run: docker build --target final -t evomax:smoke .
+
+      - name: Run fixture pipeline
+        run: |
+          mkdir -p smoke-results
+          docker run --rm \
+            -v "$PWD/smoke-results:/results" \
+            evomax:smoke \
+            --config /app/tests/fixtures/smoke_config.json
+
+      - name: Validate smoke-test outputs
+        run: |
+          docker run --rm \
+            -v "$PWD/smoke-results:/results" \
+            --entrypoint python \
+            evomax:smoke \
+            /app/tests/validate_smoke.py \
+            --results-dir /results \
+            --config /app/tests/fixtures/smoke_config.json \
+            --expected /app/tests/fixtures/smoke_expectations.json

@@ -3,11 +3,12 @@
 # EvoMax
 ### *Adaptive model-guided protein evolution with sparse data optimizes compact eukaryotic genome editors*
 
-[![Hardware](https://img.shields.io/badge/Hardware-GPU%20only-7C3AED?style=flat-square)](#runtime)
+[![Hardware](https://img.shields.io/badge/Full%20pipeline-NVIDIA%20GPU-7C3AED?style=flat-square)](#runtime)
 [![Models](https://img.shields.io/badge/Models-ESM--2%20%7C%20ESM--IF%20%7C%20GPR-2563EB?style=flat-square)](#model-specifications)
+[![Smoke test](https://github.com/Jackson-Gold/EvoMax/actions/workflows/smoke-test.yml/badge.svg)](https://github.com/Jackson-Gold/EvoMax/actions/workflows/smoke-test.yml)
 [![License](https://img.shields.io/badge/License-UPenn%20Non--Commercial-blue?style=flat-square)](LICENSE)
 
-**EvoMax** is a deterministic mutation-ranking framework that integrates **ESM-2**, **ESM-IF**, and **Gaussian Process Regression with BLOSUM-based similarity features** to prioritize **single-site protein variants** from sequence and structure.
+**EvoMax** is a data-efficient mutation-ranking framework that integrates **ESM-2**, **ESM-IF**, and **Gaussian Process Regression with BLOSUM-based similarity features** to prioritize **single-site protein variants** from sparse experimental data, sequence, and structure.
 
 </div>
 
@@ -15,40 +16,44 @@
 
 ## System Requirements
 
-> **This pipeline requires a Linux machine with an NVIDIA GPU and CUDA.** It has been tested on Linux with CUDA 12.4. CPU-only execution is not supported for the full pipeline.
+> **Full model inference requires a Linux machine with an NVIDIA GPU and CUDA.** The fixture-based smoke test uses precomputed scores and runs without a GPU.
 
 | Requirement | Details |
 |---|---|
-| **OS** | Linux |
-| **GPU** | NVIDIA GPU (CUDA-compatible) |
-| **CUDA** | 12.4+ recommended |
+| **OS** | Linux for full inference; any Docker-compatible host for the smoke test |
+| **GPU** | CUDA-compatible NVIDIA GPU for full inference only |
+| **CUDA** | 12.4 |
 | **Python** | 3.11 |
 
-A **Docker image** is also provided for reproducible execution. See [`DOCKER_SETUP.md`](DOCKER_SETUP.md) for build and run instructions.
+The Dockerfile provides a lightweight, fixture-tested smoke target and a separate CUDA target for full model inference. See [`DOCKER_SETUP.md`](DOCKER_SETUP.md) for build and run instructions.
 
 ---
 
 ## Overview
 
-EvoMax is a two-stage computational pipeline for exhaustive **single-amino-acid substitution** screening. The framework first performs broad, high-throughput prioritization using **GPR** and **precomputed ESM-2** scores, and then refines the top candidates using **ESM-IF** conditioned on the supplied protein structure. Final rankings are generated through robust score normalization and weighted aggregation.
+EvoMax is a two-stage computational pipeline for exhaustive **single-amino-acid substitution** screening. The framework first performs broad, high-throughput prioritization using **GPR** and **ESM-2**, and then refines the top candidates using **ESM-IF** conditioned on the supplied protein structure. Final rankings are generated through robust score normalization and weighted aggregation. Each scoring stage can also consume a precomputed CSV override for smoke testing or score reuse.
 
 This repository accompanies the manuscript accepted in principle at Nature Biotechnology.
+
+### Project attribution
+
+**[Shijie Wan](https://github.com/sw152)** is the first author. The project was conceived by Shijie Wan and Xue Sherry Gao. EvoMax construction and predictions were carried out by Shijie Wan, [Jackson Gold](https://github.com/Jackson-Gold), [Pranay Vure](https://github.com/pvure), and Casey S. Mogilevsky in the Xue Sherry Gao Laboratory at the University of Pennsylvania.
 
 ---
 
 ## Abstract
 
-EvoMax is a data-efficient framework for rapid optimization of protein function with low experimental data. EvoMax integrates iterative experimental profiling with model-guided prioritization based on Gaussian process regression, protein language modeling, and inverse folding, enabling efficient navigation of complex sequence-to-fitness landscapes.
+EvoMax is a data-efficient framework for rapid protein-function optimization from sparse experimental data. It integrates iterative experimental profiling with model-guided prioritization based on Gaussian process regression, protein language modeling, and inverse folding, enabling efficient navigation of complex sequence-to-fitness landscapes.
 
 ---
 
 ## Benchmarking and Architecture
 
 <p align="center">
-  <img src="docs/figures/figure3_panels.png" alt="EvoMax benchmarking and architecture panels" width="980">
+  <img src="docs/figures/figure3_panels.png" alt="Latest EvoMax manuscript Figure 3 panels a through e, showing the data pipeline, model benchmarking, and ESM-2 landscape" width="980">
 </p>
 
-<p align="center"><sub><b>Figure 1.</b> Model-selection, benchmark, mutation-landscape, and PCA panels used to position EvoMax within the broader computational workflow.</sub></p>
+<p align="center"><sub><b>Manuscript Figure 3a-e.</b> EvoMax data pipeline, model benchmarking, ESM-2 mutation landscape, and fitness-space visualization.</sub></p>
 
 ---
 
@@ -69,26 +74,27 @@ EvoMax is a data-efficient framework for rapid optimization of protein function 
 
 ## Runtime
 
-| Property | Value |
-|---|---:|
-| Expected runtime on a standard GPU | **~10 minutes** |
-| GPU requirement | **Required** |
-| Variability | Runtime may vary slightly with accelerator type and memory availability |
+| Mode | Runtime considerations |
+|---|---|
+| Fixture smoke test | Uses precomputed CSV scores; no GPU or model download is required |
+| Full model inference | Requires an NVIDIA GPU; runtime varies with sequence length, `top_k_mid`, GPU model, and whether model weights are cached |
+
+A hardware-specific benchmark will be reported only with the protein length, GPU model, candidate count, and cache state specified.
 
 ---
 
 ## Inputs
 
-All required files are expected in the **`/data`** directory.
+For full inference, mount the required model and structure inputs in **`/data`** and provide their paths in the JSON configuration.
 
 | Input | File / Type | Description |
 |---|---|---|
+| Wild-type sequence | JSON string | Canonical amino-acid sequence supplied as `wt_sequence` |
 | Target structure | `.pdb` | Protein structure file (example: `/data/v2.pdb`) |
 | GPR model | `GPR_BLOSUM.joblib` | Pre-trained Gaussian Process Regression model |
-| ESM-2 scores | `esm2_all.csv` | Precomputed ESM-2 mutation scores |
+| Model cache | directory | Optional persistent Hugging Face and PyTorch caches for ESM-2 and ESM-IF weights |
 
-> **Note**
-> The **ESM-IF** model is loaded internally by the pipeline and does not require a user-supplied model file.
+The ESM-2 and ESM-IF models are loaded internally. Alternatively, any scoring stage can use a precomputed CSV by setting `use_gpr_csv`, `use_esm2_csv`, or `use_esmiF_csv` and the corresponding CSV path. The bundled smoke test enables all three overrides and therefore does not perform model inference.
 
 ---
 
@@ -101,6 +107,8 @@ Set the following values before execution:
 | `wt_sequence` | Full wild-type amino acid sequence | user-specified |
 | `pdb_path` | Path to structure file | `/data/my_structure.pdb` |
 | `pdb_chain_id` | Chain identifier to analyze | `"A"` |
+| `gpr_model_path` | Path to the serialized GPR model | `/data/GPR_BLOSUM.joblib` |
+| `device_mode` | Device selection for model inference | `"auto"` |
 | `top_k_mid` | Number of Stage 1 candidates passed to structural refinement | `100` |
 | `normalization` | Score-scaling method used throughout the pipeline | `"robust_median_iqr"` |
 
@@ -119,7 +127,7 @@ where $L$ denotes sequence length and 19 corresponds to all non-wild-type amino 
 Every enumerated mutant is scored using:
 
 - **GPR**
-- **Precomputed ESM-2**
+- **ESM-2**
 
 These scores are combined to generate an initial ranking and to identify candidates that advance to structural refinement.
 
@@ -146,7 +154,7 @@ All outputs are written to **`/results`**.
 |---|---|
 | `all_single_mutants.csv` | Exhaustive list of all enumerated single-site mutations |
 | `gpr_all.csv` | GPR scores for all mutants |
-| `esm2_all.csv` | Precomputed ESM-2 scores |
+| `esm2_all.csv` | ESM-2 scores generated by the model or supplied as a CSV override |
 | `stage1_top{K}.csv` | Top candidates selected after Stage 1 |
 | `esmIF_top{K}.csv` | ESM-IF scores for Stage 2 candidates |
 | `EvoMax_final_top{K}.csv` | **Final ranked mutation set** |
@@ -206,13 +214,21 @@ Other supported methods:
 
 ## Reproducibility
 
-This pipeline is configured for deterministic execution and manuscript-level reproducibility.
+### Fixture smoke test
 
-- All models are fixed and pre-trained
-- No stochastic training occurs during execution
-- Random seeds are fixed
-- All score normalization uses `robust_median_iqr`
-- ESM-2 and ESM-IF scores are treated deterministically
+The automated smoke test uses fixed CSV fixtures for GPR, ESM-2, and ESM-IF. It validates configuration parsing, mutation enumeration, score normalization and aggregation, ranking, and output schemas. **It is not a GPR, ESM-2, or ESM-IF model-inference test.** The same fixture test runs during the default Docker image build and in GitHub Actions.
+
+### Full pipeline
+
+- Package and model versions are pinned in `environment.yml` and the Docker requirements files.
+- GPR, ESM-2, and ESM-IF are fixed, pre-trained models; the runner performs no training or random sampling.
+- ESM-2 and ESM-IF run in evaluation mode with gradient calculation disabled.
+- The default normalization is `robust_median_iqr`.
+- Small floating-point differences may occur across GPU models, CUDA versions, or PyTorch builds.
+
+Full inference is intentionally separate from the CPU smoke test because it requires an NVIDIA GPU, model downloads, a target structure, and the study-specific serialized GPR model.
+
+The manual [GPU image build workflow](https://github.com/Jackson-Gold/EvoMax/actions/workflows/gpu-image-build.yml) validates the pinned CUDA environment and all full-pipeline imports without claiming end-to-end model-inference coverage.
 
 ---
 
@@ -228,6 +244,8 @@ If you use EvoMax, please cite the accompanying paper:
   note    = {Accepted in principle at Nature Biotechnology}
 }
 ```
+
+The archived software record is available through the [Zenodo concept DOI](https://doi.org/10.5281/zenodo.21083837).
 
 ---
 

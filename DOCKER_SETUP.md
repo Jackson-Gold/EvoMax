@@ -4,20 +4,20 @@ This repository now includes a Docker-friendly EvoMax runner at `python evomax_r
 
 The Dockerfile exposes two useful targets:
 
-- The default `final` target is a smoke-tested image for validation and CSV-override workflows.
-- The `gpu` target adds the heavyweight CUDA, PyTorch, and PyG stack needed for full ESM-2 plus ESM-IF execution on Linux/NVIDIA hosts.
+- The default `final` target is a lightweight image for fixture-based validation and CSV-override workflows. Its build runs the bundled smoke pipeline and output validator.
+- The `gpu` target provides Python 3.11, CUDA 12.4, PyTorch 2.6, ESM-2, ESM-IF, and the GPR dependencies needed for full inference on Linux/NVIDIA hosts.
 
 ## Build The Image
 
 Smoke/default target:
 
 ```bash
-docker build --platform linux/amd64 -t evomax:latest .
+docker build --platform linux/amd64 -t evomax:smoke .
 ```
 
 ## Run The Smoke Test
 
-The bundled smoke config uses CSV overrides for GPR, ESM-2, and ESM-IF, so it runs end-to-end without downloading models.
+The bundled smoke config uses CSV overrides for GPR, ESM-2, and ESM-IF, so it exercises orchestration, normalization, ranking, and output generation without downloading or running the models. This is not a model-inference test.
 
 ```bash
 mkdir -p smoke-results
@@ -25,7 +25,7 @@ mkdir -p smoke-results
 docker run --rm \
   --platform linux/amd64 \
   -v "$PWD/smoke-results:/results" \
-  evomax:latest \
+  evomax:smoke \
   --config /app/tests/fixtures/smoke_config.json
 ```
 
@@ -36,7 +36,7 @@ docker run --rm \
   --platform linux/amd64 \
   -v "$PWD/smoke-results:/results" \
   --entrypoint python \
-  evomax:latest \
+  evomax:smoke \
   /app/tests/validate_smoke.py \
   --results-dir /results \
   --config /app/tests/fixtures/smoke_config.json \
@@ -57,7 +57,7 @@ Create a JSON config next to your mounted input files. Relative paths are resolv
 Build the GPU target on a Linux or Linux-compatible NVIDIA host:
 
 ```bash
-docker build --target gpu -t evomax:gpu .
+docker build --platform linux/amd64 --target gpu -t evomax:gpu .
 ```
 
 Minimal GPU config shape:
@@ -82,13 +82,13 @@ Minimal GPU config shape:
 Run it on an NVIDIA host:
 
 ```bash
-mkdir -p results hf-cache
+mkdir -p results model-cache
 
 docker run --rm \
   --gpus all \
   -v "$PWD/data:/data" \
   -v "$PWD/results:/results" \
-  -v "$PWD/hf-cache:/models/huggingface" \
+  -v "$PWD/model-cache:/models" \
   evomax:gpu \
   --config /data/evomax_config.json
 ```
@@ -98,5 +98,6 @@ docker run --rm \
 - `colab_evomax.py` and `Colab_EvoMax.ipynb` remain as the Colab reference artifacts.
 - The Docker path uses `evomax_runner.py`, which removes the Colab-only syntax and supports headless JSON configuration.
 - The container writes outputs to `/results` by default.
-- The default image is intentionally lighter so it can be smoke-tested on constrained machines; use the `gpu` target for full model execution.
-- The first real ESM-2 or ESM-IF run will download model weights unless you mount a reusable Hugging Face cache.
+- The default image contains only the dependencies needed for CSV-override execution; use the `gpu` target for full model inference.
+- The first real ESM-2 or ESM-IF run will download model weights unless you mount reusable Hugging Face and PyTorch caches at `/models`.
+- Full inference is not exercised by the CPU smoke workflow because it requires an NVIDIA GPU, a target structure, and the study-specific serialized GPR model.
