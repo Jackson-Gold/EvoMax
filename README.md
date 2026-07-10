@@ -205,10 +205,10 @@ Other supported methods:
 ## Graphical Abstract
 
 <p align="center">
-  <img src="docs/figures/figure3_workflow.png" alt="EvoMax computational workflow" width="640">
+  <img src="docs/figures/figure3f_workflow_latest.png" alt="EvoMax computational workflow integrating sequence and structure inputs with GPR, ESM-2, and ESM-IF" width="760">
 </p>
 
-<p align="center"><sub><b>Figure 2.</b> Compact graphical summary of the EvoMax workflow integrating sequence input, structure input, GPR, ESM-2, and ESM-IF for iterative high-throughput screening and final mutation ranking.</sub></p>
+<p align="center"><sub><b>Manuscript Figure 3f.</b> Compact graphical summary of the EvoMax workflow integrating sequence input, structure input, GPR, ESM-2, and ESM-IF for iterative high-throughput screening and final mutation ranking.</sub></p>
 
 ---
 
