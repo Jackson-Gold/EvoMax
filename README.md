@@ -50,7 +50,7 @@ EvoMax is a data-efficient framework for rapid protein-function optimization fro
 ## Benchmarking and Architecture
 
 <p align="center">
-  <img src="docs/figures/figure3_panels.png" alt="Latest EvoMax manuscript Figure 3 panels a through e, showing the data pipeline, model benchmarking, and ESM-2 landscape" width="980">
+  <img src="docs/figures/figure3_panels_latest.png" alt="Latest EvoMax manuscript Figure 3 panels a through e, showing the data pipeline, model benchmarking, and ESM-2 landscape" width="980">
 </p>
 
 <p align="center"><sub><b>Manuscript Figure 3a-e.</b> EvoMax data pipeline, model benchmarking, ESM-2 mutation landscape, and fitness-space visualization.</sub></p>
