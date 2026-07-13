@@ -16,6 +16,7 @@ COPY tests /app/tests
 
 RUN python -m py_compile /app/evomax_runner.py && \
     python -m py_compile /app/tests/validate_smoke.py && \
+    python /app/tests/test_stage1_selection.py && \
     mkdir -p /data /results
 
 RUN python /app/evomax_runner.py \
@@ -58,6 +59,7 @@ COPY tests /app/tests
 
 RUN python -m py_compile /app/evomax_runner.py && \
     python -m py_compile /app/tests/validate_smoke.py && \
+    python /app/tests/test_stage1_selection.py && \
     mkdir -p /data /results /models/huggingface /models/torch
 
 ENTRYPOINT ["python", "/app/evomax_runner.py"]

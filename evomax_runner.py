@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import sys
@@ -30,7 +31,8 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "pdb_path": "/data/input.pdb",
     "pdb_chain_id": "A",
     "device_mode": "auto",
-    "top_k_mid": 100,
+    "top_fraction_mid": 0.015,
+    "top_k_mid": None,
     "top_k_final": 100,
     "gpr_model_path": "/data/GPR_BLOSUM.joblib",
     "w_gpr_s1": 0.35,
@@ -116,7 +118,13 @@ def validate_config(config: Dict[str, Any]) -> None:
             f"esm_if_variant must be one of {sorted(SUPPORTED_ESMIF_VARIANTS)}."
         )
 
-    for key in ("top_k_mid", "top_k_final", "checkpoint_every"):
+    if not 0 < float(config["top_fraction_mid"]) <= 1:
+        raise ValueError("top_fraction_mid must be greater than 0 and at most 1.")
+
+    if config["top_k_mid"] is not None and int(config["top_k_mid"]) <= 0:
+        raise ValueError("top_k_mid must be null or a positive integer.")
+
+    for key in ("top_k_final", "checkpoint_every"):
         if int(config[key]) <= 0:
             raise ValueError(f"{key} must be a positive integer.")
 
@@ -178,6 +186,22 @@ def eta_str(seconds: float) -> str:
     if minutes:
         return f"{minutes}m {seconds}s"
     return f"{seconds}s"
+
+
+def resolve_stage1_limit(config: Dict[str, Any], candidate_count: int) -> int:
+    """Resolve the Stage 1 shortlist size.
+
+    The manuscript protocol advances the top 1.5% of scored candidates. A fixed
+    ``top_k_mid`` remains available as an explicit backward-compatible override.
+    """
+    if candidate_count <= 0:
+        raise ValueError("candidate_count must be a positive integer.")
+
+    if config.get("top_k_mid") is not None:
+        requested = int(config["top_k_mid"])
+    else:
+        requested = max(1, math.floor(candidate_count * float(config["top_fraction_mid"])))
+    return min(requested, candidate_count)
 
 
 def save_csv(df, path: str, to_print: bool = True) -> None:
@@ -453,8 +477,6 @@ def run_esm2_stage(config: Dict[str, Any], wt_sequence: str, results_dir: str):
 def run_stage1(config: Dict[str, Any], gpr_df, esm2_df, results_dir: str):
     import pandas as pd
 
-    output_path = os.path.join(results_dir, f"stage1_top{config['top_k_mid']}.csv")
-
     stage1 = pd.merge(
         gpr_df[["mutation", "GPR_score"]],
         esm2_df[["mutation", "ESM2_score"]],
@@ -472,8 +494,13 @@ def run_stage1(config: Dict[str, Any], gpr_df, esm2_df, results_dir: str):
     )
 
     stage1 = stage1.sort_values("score_stage1", ascending=False).reset_index(drop=True)
-    limit = min(int(config["top_k_mid"]), len(stage1))
+    limit = resolve_stage1_limit(config, len(stage1))
     stage1_top = stage1.head(limit).copy()
+    output_path = os.path.join(results_dir, f"stage1_top{limit}.csv")
+    print(
+        f"Stage 1 shortlist: {limit:,} of {len(stage1):,} candidates "
+        f"({limit / len(stage1):.3%})."
+    )
 
     wt, pos, mut = zip(*[parse_mutation(token) for token in stage1_top["mutation"]])
     stage1_top["wt"] = wt
@@ -537,7 +564,7 @@ def ensure_seq_matches_pdb(wt_sequence: str, pdb_sequence: str) -> Tuple[str, bo
 def run_esmif_stage(config: Dict[str, Any], wt_sequence: str, stage1_top, results_dir: str):
     import pandas as pd
 
-    output_path = os.path.join(results_dir, f"esmiF_top{config['top_k_mid']}.csv")
+    output_path = os.path.join(results_dir, f"esmiF_top{len(stage1_top)}.csv")
     if config["use_esmiF_csv"]:
         print("Using provided ESM-IF CSV override.")
         frame = try_read_csv(config["esmiF_csv_path"])

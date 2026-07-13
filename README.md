@@ -77,7 +77,7 @@ EvoMax is a data-efficient framework for rapid protein-function optimization fro
 | Mode | Runtime considerations |
 |---|---|
 | Fixture smoke test | Uses precomputed CSV scores; no GPU or model download is required |
-| Full model inference | Requires an NVIDIA GPU; runtime varies with sequence length, `top_k_mid`, GPU model, and whether model weights are cached |
+| Full model inference | Requires an NVIDIA GPU; runtime varies with sequence length, Stage 1 shortlist size, GPU model, and whether model weights are cached |
 
 A hardware-specific benchmark will be reported only with the protein length, GPU model, candidate count, and cache state specified.
 
@@ -109,7 +109,8 @@ Set the following values before execution:
 | `pdb_chain_id` | Chain identifier to analyze | `"A"` |
 | `gpr_model_path` | Path to the serialized GPR model | `/data/GPR_BLOSUM.joblib` |
 | `device_mode` | Device selection for model inference | `"auto"` |
-| `top_k_mid` | Number of Stage 1 candidates passed to structural refinement | `100` |
+| `top_fraction_mid` | Fraction of Stage 1 candidates passed to structural refinement | `0.015` (top 1.5%) |
+| `top_k_mid` | Optional fixed-size override for backward compatibility | `null` |
 | `normalization` | Score-scaling method used throughout the pipeline | `"robust_median_iqr"` |
 
 ---
@@ -130,6 +131,11 @@ Every enumerated mutant is scored using:
 - **ESM-2**
 
 These scores are combined to generate an initial ranking and to identify candidates that advance to structural refinement.
+By default, the top 1.5% of scored candidates are advanced, calculated as
+`max(1, floor(N × 0.015))` for `N` scored single-site substitutions. For the
+9,405 candidates generated from a 495-residue protein, this yields 141 Stage 1
+candidates. A fixed `top_k_mid` can be supplied only when an explicit override
+is required.
 
 ### 3. Stage 2 — Structural Refinement
 The top-ranked Stage 1 candidates are rescored using **ESM-IF**, conditioned on the supplied protein backbone and selected chain.
@@ -167,7 +173,8 @@ All outputs are written to **`/results`**.
 
 | Parameter | Default | Description |
 |---|---:|---|
-| `top_k_mid` | `100` | Number of candidates advanced to Stage 2 |
+| `top_fraction_mid` | `0.015` | Fraction of candidates advanced to Stage 2 (top 1.5%) |
+| `top_k_mid` | `null` | Optional fixed-size override; when set, it takes precedence over `top_fraction_mid` |
 | `top_k_final` | `100` | Number of final ranked mutations returned |
 
 ### Scoring Weights

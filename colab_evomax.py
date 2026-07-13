@@ -5,7 +5,7 @@
 
 # 🧬 Colab EvoMax: Mutation Ranking Pipeline (GPR + ESM‑2 + ESM‑IF)
 
-**One‑click Colab pipeline** to enumerate every single‑site mutation for an input sequence, score with a **Gaussian Process Regressor (GPR)** and **ESM‑2**, prune to **Top‑100**, re‑score those with **ESM‑IF** + structure, and produce a **final Top‑100** ranking using configurable weights.
+**One‑click Colab pipeline** to enumerate every single‑site mutation for an input sequence, score with a **Gaussian Process Regressor (GPR)** and **ESM‑2**, advance the **top 1.5%**, re‑score those with **ESM‑IF** + structure, and produce a **final Top‑100** ranking using configurable weights.
 
 **Highlights**  
 - Form fields (`#@title`) for a codeless UX  
@@ -91,7 +91,9 @@ device_mode = "auto"  #@param ["auto", "cuda", "cpu"]
 #@markdown *Default is “auto”: CUDA if available else CPU.*
 
 # ── Stage sizes ────────────────────────────────────────────────────────────────
-top_k_mid   = 100  #@param {type:"integer"}
+top_fraction_mid = 0.015  #@param {type:"number"}
+#@markdown *The manuscript protocol advances the top 1.5% of all single-site candidates.*
+top_k_mid = max(1, math.floor(len(wt_sequence) * 19 * top_fraction_mid))
 top_k_final = 100  #@param {type:"integer"}
 
 # ── GPR model (joblib) ─────────────────────────────────────────────────────────
