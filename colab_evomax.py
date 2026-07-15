@@ -18,17 +18,13 @@
 """
 
 #@title ⬇️ EvoMax — Install dependencies (~8 min | run once per runtime)
-# This cell installs runtime deps for ESM-2, ESM-IF, I/O, and progress reporting.
-# It is safe to re-run; if Colab asks for a restart after torch-geometric, do so.
+# This cell pins the same publication package set used by the GPU Docker image.
+# It is safe to re-run; if Colab asks for a restart after installation, do so.
 
-!pip -q install joblib tqdm biopython==1.84 pandas numpy
-!pip -q install transformers
-!pip -q install fair-esm biotite
-
-# torch-geometric & torch-scatter are often required by ESM-IF on GPU.
-# On Colab these usually "just work" on CPU and commonly work on GPU too.
-# If you see an install mismatch warning, switch device to CPU in the form below.
-!pip -q install torch-geometric torch-scatter
+!pip -q install --index-url https://download.pytorch.org/whl/cu124 torch==2.6.0
+!pip -q install numpy==1.26.4 pandas==2.2.2 tqdm==4.67.3 joblib==1.5.3 biopython==1.84 scikit-learn==1.5.2 scipy==1.14.1
+!pip -q install transformers==5.0.0 fair-esm==2.0.0 biotite==0.40.0 torch-geometric==2.7.0
+!pip -q install --no-index --find-links https://data.pyg.org/whl/torch-2.6.0+cu124.html torch-scatter==2.1.2
 
 """### Relevant Installed Packages and Versions
 
@@ -47,11 +43,14 @@ def get_version(package_name):
 
 
 relevant_packages = [
+    "torch",
     "joblib",
     "tqdm",
     "biopython",
     "pandas",
     "numpy",
+    "scikit-learn",
+    "scipy",
     "transformers",
     "fair-esm",
     "biotite",
