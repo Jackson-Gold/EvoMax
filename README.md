@@ -41,13 +41,13 @@ This repository accompanies the manuscript accepted in principle at Nature Biote
 
 ---
 
-## Supervised Model Benchmarking and ESM-2 Analyses
+## Supervised Model Benchmarking
 
 <p align="center">
-  <img src="docs/figures/figure3_panels_latest.png" alt="Manuscript Figure 3 panels a through e, showing data assembly, supervised-model comparison, and descriptive ESM-2 analyses" width="980">
+  <img src="docs/figures/figure3_panels_latest.png" alt="Manuscript Figure 3 panels a through c, showing data assembly and supervised-model comparison" width="980">
 </p>
 
-<p align="center"><sub><b>Manuscript Figure 3a–e.</b> Data assembly and supervised-model comparison (a–c), with separate descriptive ESM-2 analyses of mutation position and representation space (d,e). Panels d and e visualize ESM-2 outputs; they are not additional inputs to the ranking pipeline.</sub></p>
+<p align="center"><sub><b>Manuscript Figure 3a–c.</b> Data assembly and supervised-model comparison.</sub></p>
 
 ---
 
@@ -55,7 +55,7 @@ This repository accompanies the manuscript accepted in principle at Nature Biote
 
 - [System Requirements](#system-requirements)
 - [Overview](#overview)
-- [Supervised Model Benchmarking and ESM-2 Analyses](#supervised-model-benchmarking-and-esm-2-analyses)
+- [Supervised Model Benchmarking](#supervised-model-benchmarking)
 - [Runtime](#runtime)
 - [Inputs](#inputs)
 - [Core Configuration](#core-configuration)
