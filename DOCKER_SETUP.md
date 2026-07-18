@@ -5,7 +5,7 @@ This repository now includes a Docker-friendly EvoMax runner at `python evomax_r
 The Dockerfile exposes two useful targets:
 
 - The default `final` target is a lightweight image for fixture-based validation and CSV-override workflows. Its build runs the bundled smoke pipeline and output validator.
-- The `gpu` target provides Python 3.11, CUDA 12.4, PyTorch 2.6, ESM-2, ESM-IF, and the GPR dependencies needed for full inference on Linux/NVIDIA hosts.
+- The `gpu` target provides Python 3.11, CUDA 12.4, PyTorch 2.6, ESM-2, ESM-IF, and the supervised-score dependencies needed for full inference on Linux/NVIDIA hosts.
 
 ## Build The Image
 
@@ -48,11 +48,11 @@ Expected smoke result:
 - `all_single_mutants.csv` contains `57` rows.
 - `stage1_top5.csv` contains `5` rows.
 - `EvoMax_final_top3.csv` contains `3` rows.
-- The top final mutation is `C2W`.
+- The top final mutation is `A1Y`.
 
 ## Run A Real GPU Job
 
-Create a JSON config next to your mounted input files. Relative paths are resolved relative to the config file location, so a config in `/data` can reference `GPR_BLOSUM.joblib` or `my_structure.pdb` directly.
+Create a JSON config next to your mounted input files. Relative paths are resolved relative to the config file location, so a config in `/data` can reference a compatible serialized predictor or `my_structure.pdb` directly.
 
 Build the GPU target on a Linux or Linux-compatible NVIDIA host:
 
@@ -73,12 +73,18 @@ Minimal GPU config shape:
   "top_k_mid": null,
   "top_k_final": 100,
   "normalization": "robust_median_iqr",
+  "esm2_scoring_mode": "p_mut_only",
   "use_gpr_csv": false,
   "use_esm2_csv": false,
   "use_esmiF_csv": false,
+  "resume_runs": false,
   "results_dir": "/results"
 }
 ```
+
+The direct `gpr_model_path` pathway expects a serialized predictor compatible with the runner's three-column WT-residue, position and mutant-residue feature interface. Scores from models using other feature representations should be computed outside the runner and supplied with `use_gpr_csv=true`; see the main README for the accepted CSV schema.
+
+The selected PDB or CIF chain must correspond residue-for-residue and position-for-position to `wt_sequence`.
 
 Run it on an NVIDIA host:
 
@@ -101,4 +107,4 @@ docker run --rm \
 - The container writes outputs to `/results` by default.
 - The default image contains only the dependencies needed for CSV-override execution; use the `gpu` target for full model inference.
 - The first real ESM-2 or ESM-IF run will download model weights unless you mount reusable Hugging Face and PyTorch caches at `/models`.
-- Full inference is not exercised by the CPU smoke workflow because it requires an NVIDIA GPU, a target structure, and the study-specific serialized GPR model.
+- Full inference is not exercised by the CPU smoke workflow because ESM-2 and ESM-IF are computationally intensive and require model downloads, a target structure, and user-supplied supervised scores. An NVIDIA GPU is strongly recommended for this path.

@@ -8,9 +8,9 @@
   "gpr_model_path": "",
   "w_gpr_s1": 0.35,
   "w_esm2_s1": 0.65,
-  "w_gpr_final": 0.1,
-  "w_esm2_final": 0.2,
-  "w_esmiF_final": 0.7,
+  "w_gpr_final": 0.05,
+  "w_esm2_final": 0.70,
+  "w_esmiF_final": 0.25,
   "normalization": "rank_percentile",
   "use_gpr_csv": true,
   "gpr_csv_path": "gpr_smoke.csv",
@@ -25,4 +25,3 @@
   "resume_runs": false,
   "results_dir": "/results"
 }
-
