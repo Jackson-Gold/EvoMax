@@ -3,12 +3,12 @@
 # EvoMax
 ### *Adaptive model-guided protein evolution with sparse data optimizes compact eukaryotic genome editors*
 
-[![Hardware](https://img.shields.io/badge/Full%20pipeline-NVIDIA%20GPU-7C3AED?style=flat-square)](#runtime)
-[![Models](https://img.shields.io/badge/Models-ESM--2%20%7C%20ESM--IF%20%7C%20GPR-2563EB?style=flat-square)](#model-specifications)
+[![Hardware](https://img.shields.io/badge/Full%20pipeline-GPU%20recommended-7C3AED?style=flat-square)](#runtime)
+[![Scores](https://img.shields.io/badge/Scores-Supervised%20%7C%20ESM--2%20%7C%20ESM--IF-2563EB?style=flat-square)](#model-specifications)
 [![Smoke test](https://github.com/Jackson-Gold/EvoMax/actions/workflows/smoke-test.yml/badge.svg)](https://github.com/Jackson-Gold/EvoMax/actions/workflows/smoke-test.yml)
 [![License](https://img.shields.io/badge/License-UPenn%20Non--Commercial-blue?style=flat-square)](LICENSE)
 
-**EvoMax** is a data-efficient mutation-ranking framework that integrates **ESM-2**, **ESM-IF**, and a **task-specific supervised activity predictor** to prioritize **single-site protein variants** from sparse experimental data, sequence, and structure. The Fz2 study used Gaussian Process Regression (GPR) with BLOSUM-based similarity features, but the framework is not intrinsically tied to that regression model.
+**EvoMax** is a data-efficient mutation-ranking framework that integrates **task-specific supervised activity scores**, **ESM-2**, and **ESM-IF** to prioritize **single-site protein variants** from sparse experimental data, sequence, and structure.
 
 </div>
 
@@ -16,13 +16,13 @@
 
 ## System Requirements
 
-> **Full model inference requires a Linux machine with an NVIDIA GPU and CUDA.** The fixture-based smoke test uses precomputed scores and runs without a GPU.
+> **Full model inference is intended for Linux and is practical with an NVIDIA GPU and CUDA.** CPU execution is supported by the runner but may be prohibitively slow for ESM-2 and ESM-IF. The fixture-based smoke test uses precomputed scores and runs without a GPU.
 
 | Requirement | Details |
 |---|---|
-| **OS** | Linux for full inference; any Docker-compatible host for the smoke test |
-| **GPU** | CUDA-compatible NVIDIA GPU for full inference only |
-| **CUDA** | 12.4 |
+| **OS** | Linux recommended for full inference; any Docker-compatible host for the smoke test |
+| **GPU** | CUDA-compatible NVIDIA GPU strongly recommended for full inference; not required for the smoke test |
+| **CUDA** | 12.4 in the supported GPU environment |
 | **Python** | 3.11 |
 
 The Dockerfile provides a lightweight, fixture-tested smoke target and a separate CUDA target for full model inference. See [`DOCKER_SETUP.md`](DOCKER_SETUP.md) for build and run instructions.
@@ -31,7 +31,7 @@ The Dockerfile provides a lightweight, fixture-tested smoke target and a separat
 
 ## Overview
 
-EvoMax is a two-stage computational pipeline for exhaustive **single-amino-acid substitution** screening. The framework first performs broad, high-throughput prioritization using a **task-specific supervised activity score** and **ESM-2**, and then refines the top candidates using **ESM-IF** conditioned on the supplied protein structure. Final rankings are generated through robust score normalization and weighted aggregation. In the Fz2 application, cross-model benchmarking selected a BLOSUM-based GPR as the supervised component. For a new protein-engineering task, users should compare candidate regression models using held-out or cross-validated performance and supply the selected predictor or its precomputed scores. Each scoring stage can consume a precomputed CSV override for smoke testing or score reuse.
+EvoMax is a two-stage computational pipeline for exhaustive **single-amino-acid substitution** screening. The framework first performs broad, high-throughput prioritization using a **task-specific supervised activity score** and **ESM-2**, and then refines the top candidates using **ESM-IF** conditioned on the supplied protein structure. Final rankings are generated through configurable score normalization and weighted aggregation, with robust median and interquartile-range scaling as the default. For the Fz2 application, comparison of candidate regression models led to selection of a BLOSUM-based GPR as the supervised component. For a new protein-engineering task, users should compare candidate regression models using held-out or cross-validated performance outside this runner and supply the selected model's precomputed scores through the CSV interface. The direct serialized-model pathway is limited to predictors compatible with the runner's three-column WT-residue, position and mutant-residue feature interface. Each scoring stage can also consume a precomputed CSV override for smoke testing or score reuse.
 
 This repository accompanies the manuscript accepted in principle at Nature Biotechnology.
 
@@ -41,34 +41,33 @@ This repository accompanies the manuscript accepted in principle at Nature Biote
 
 ---
 
-## Abstract
-
-EvoMax is a data-efficient framework for rapid protein-function optimization from sparse experimental data. It integrates iterative experimental profiling with model-guided prioritization based on a task-specific supervised activity predictor, protein language modeling, and inverse folding, enabling efficient navigation of complex sequence-to-fitness landscapes. A BLOSUM-based GPR was the supervised predictor selected for the Fz2 application described in the accompanying manuscript.
-
----
-
-## Benchmarking and Architecture
+## Supervised Model Benchmarking and ESM-2 Analyses
 
 <p align="center">
-  <img src="docs/figures/figure3_panels_latest.png" alt="Latest EvoMax manuscript Figure 3 panels a through e, showing the data pipeline, model benchmarking, and ESM-2 landscape" width="980">
+  <img src="docs/figures/figure3_panels_latest.png" alt="Manuscript Figure 3 panels a through e, showing data assembly, supervised-model comparison, and descriptive ESM-2 analyses" width="980">
 </p>
 
-<p align="center"><sub><b>Manuscript Figure 3a-e.</b> EvoMax data pipeline, model benchmarking, ESM-2 mutation landscape, and fitness-space visualization.</sub></p>
+<p align="center"><sub><b>Manuscript Figure 3a–e.</b> Data assembly and supervised-model comparison (a–c), with separate descriptive ESM-2 analyses of mutation position and representation space (d,e). Panels d and e visualize ESM-2 outputs; they are not additional inputs to the ranking pipeline.</sub></p>
 
 ---
 
 ## Table of Contents
 
 - [System Requirements](#system-requirements)
+- [Overview](#overview)
+- [Supervised Model Benchmarking and ESM-2 Analyses](#supervised-model-benchmarking-and-esm-2-analyses)
 - [Runtime](#runtime)
 - [Inputs](#inputs)
-- [Required Configuration](#required-configuration)
+- [Core Configuration](#core-configuration)
 - [Pipeline Logic](#pipeline-logic)
 - [Outputs](#outputs)
 - [Configuration Details](#configuration-details)
 - [Model Specifications](#model-specifications)
+- [Graphical Abstract](#graphical-abstract)
 - [Reproducibility](#reproducibility)
 - [Citation](#citation)
+- [License](#license)
+- [Contact](#contact)
 
 ---
 
@@ -77,7 +76,7 @@ EvoMax is a data-efficient framework for rapid protein-function optimization fro
 | Mode | Runtime considerations |
 |---|---|
 | Fixture smoke test | Uses precomputed CSV scores; no GPU or model download is required |
-| Full model inference | Requires an NVIDIA GPU; runtime varies with sequence length, Stage 1 shortlist size, GPU model, and whether model weights are cached |
+| Full model inference | An NVIDIA GPU is strongly recommended; runtime varies with sequence length, Stage 1 shortlist size, device, and whether model weights are cached |
 
 A hardware-specific benchmark will be reported only with the protein length, GPU model, candidate count, and cache state specified.
 
@@ -90,28 +89,38 @@ For full inference, mount the required model and structure inputs in **`/data`**
 | Input | File / Type | Description |
 |---|---|---|
 | Wild-type sequence | JSON string | Canonical amino-acid sequence supplied as `wt_sequence` |
-| Target structure | `.pdb` | Protein structure file (example: `/data/v2.pdb`) |
-| Supervised activity model | `.joblib` (example: `GPR_BLOSUM.joblib`) | User-supplied, task-specific regression model; the manuscript-specific fitted GPR weights are not distributed in this repository |
-| Model cache | directory | Optional persistent Hugging Face and PyTorch caches for ESM-2 and ESM-IF weights |
+| Target structure | `.pdb` or `.cif` | Protein structure file whose selected chain corresponds residue-for-residue and position-for-position to `wt_sequence` (example: `/data/v2.pdb`) |
+| Supervised activity source | compatible `.joblib` predictor or `.csv` | A serialized predictor compatible with the runner's WT-residue/position/mutant-residue feature interface, or precomputed scores supplied with `use_gpr_csv=true`; models using other feature representations must use the CSV pathway |
+| Model cache | directory mount | Optional persistent Hugging Face and PyTorch cache mounted for ESM-2 and ESM-IF weights; this is not a JSON configuration field |
 
-The ESM-2 and ESM-IF models are loaded internally. Alternatively, any scoring stage can use a precomputed CSV by setting `use_gpr_csv`, `use_esm2_csv`, or `use_esmiF_csv` and the corresponding CSV path. The legacy `gpr` option name denotes the supervised activity-score channel; a CSV generated by another regression model can be supplied through the same interface. The runner performs inference and ranking only: it does not train or select the supervised model. The bundled smoke test enables all three overrides and therefore does not perform model inference.
+The ESM-2 and ESM-IF models are loaded internally. Alternatively, any scoring stage can use a precomputed CSV by setting `use_gpr_csv`, `use_esm2_csv`, or `use_esmiF_csv` and the corresponding CSV path. The legacy `gpr` option name denotes the supervised activity-score channel; a CSV generated by another regression model can be supplied through the same interface. Model training and selection occur outside the runner, which performs model inference where supported, score integration and ranking. The bundled smoke test enables all three overrides and therefore does not perform model inference.
+
+Each override CSV must contain either a `mutation` column using tokens such as `A12V`, or the three columns `wt`, `pos` and `mut`. The preferred score columns are `GPR_score`, `ESM2_score` and `IF_score` for their respective channels; the generic aliases `score`, `pred_fold`, `ll`, `log_likelihood` and `prob` are also accepted.
 
 ---
 
-## Required Configuration
+## Core Configuration
 
-Set the following values before execution:
+Review the following core values before execution. Parameters not explicitly supplied use the runner defaults.
 
 | Parameter | Description | Example / Default |
 |---|---|---|
 | `wt_sequence` | Full wild-type amino acid sequence | user-specified |
-| `pdb_path` | Path to structure file | `/data/my_structure.pdb` |
+| `pdb_path` | Path to a `.pdb` or `.cif` structure whose selected chain corresponds exactly to `wt_sequence` | `/data/my_structure.pdb` |
 | `pdb_chain_id` | Chain identifier to analyze | `"A"` |
-| `gpr_model_path` | Path to the serialized GPR model | `/data/GPR_BLOSUM.joblib` |
+| `gpr_model_path` | Path to a compatible serialized predictor using the runner's three-column mutation feature interface | `/data/GPR_BLOSUM.joblib` |
+| `use_gpr_csv` | Use precomputed supervised scores instead of a serialized predictor | `false` |
+| `gpr_csv_path` | Path to the supervised-score CSV when `use_gpr_csv=true` | user-specified |
 | `device_mode` | Device selection for model inference | `"auto"` |
+| `esm2_scoring_mode` | ESM-2 mutation-score definition | `"p_mut_only"` |
 | `top_fraction_mid` | Fraction of Stage 1 candidates passed to structural refinement | `0.015` (top 1.5%) |
 | `top_k_mid` | Optional fixed-size override for backward compatibility | `null` |
 | `normalization` | Score-scaling method used throughout the pipeline | `"robust_median_iqr"` |
+| `resume_runs` | Reuse existing per-stage CSV outputs in `results_dir` | `true` |
+
+With `esm2_scoring_mode="p_mut_only"`, the ESM-2 score is the softmax probability assigned to the mutant amino acid at the masked position. The alternative `"delta_logp_mut_minus_wt"` mode returns the mutant log probability minus the wild-type log probability and is not the default.
+
+When the sequence, structure, predictor, scoring mode or weights change, use a new results directory or set `resume_runs=false` to prevent reuse of outputs generated under an earlier configuration.
 
 ---
 
@@ -127,7 +136,7 @@ where $L$ denotes sequence length and 19 corresponds to all non-wild-type amino 
 ### 2. Stage 1 — Screening
 Every enumerated mutant is scored using:
 
-- **A user-supplied supervised activity predictor** (BLOSUM-based GPR in the Fz2 study, or a precomputed score CSV from another regression model)
+- **Supervised activity scores** from a compatible serialized predictor or a precomputed score CSV
 - **ESM-2**
 
 These scores are combined to generate an initial ranking and to identify candidates that advance to structural refinement.
@@ -141,29 +150,29 @@ is required.
 The top-ranked Stage 1 candidates are rescored using **ESM-IF**, conditioned on the supplied protein backbone and selected chain.
 
 ### 4. Final Ranking
-All relevant scores are normalized with:
+By default, all relevant scores are normalized with:
 
 - `robust_median_iqr`
 
 The normalized scores are then weighted and aggregated into the final mutation ranking.
 
 > **Scope note**
-> This repository exposes **Round 3 only** (the final iteration). Intermediate Rounds 1 and 2 are not executed in this release.
+> The provided runner implements the **Round 3 ranking configuration only**. It does not reconstruct the experimental data collection or candidate-selection histories of Rounds 1 and 2, and it does not train the supervised model.
 
 ---
 
 ## Outputs
 
-All outputs are written to **`/results`**.
+By default, outputs are written to **`/results`**; this location can be changed with `results_dir`.
 
 | File | Description |
 |---|---|
 | `all_single_mutants.csv` | Exhaustive list of all enumerated single-site mutations |
-| `gpr_all.csv` | GPR scores for all mutants |
+| `gpr_all.csv` | Supervised activity scores for all mutants (legacy filename) |
 | `esm2_all.csv` | ESM-2 scores generated by the model or supplied as a CSV override |
 | `stage1_top{K}.csv` | Top candidates selected after Stage 1 |
-| `esmIF_top{K}.csv` | ESM-IF scores for Stage 2 candidates |
-| `EvoMax_final_top{K}.csv` | **Final ranked mutation set** |
+| `esmiF_top{K}.csv` | ESM-IF scores for Stage 2 candidates |
+| `EvoMax_final_top{K}.csv` | **Final ranked mutation set**, containing up to the configured `top_k_final` candidates |
 
 ---
 
@@ -175,21 +184,21 @@ All outputs are written to **`/results`**.
 |---|---:|---|
 | `top_fraction_mid` | `0.015` | Fraction of candidates advanced to Stage 2 (top 1.5%) |
 | `top_k_mid` | `null` | Optional fixed-size override; when set, it takes precedence over `top_fraction_mid` |
-| `top_k_final` | `100` | Number of final ranked mutations returned |
+| `top_k_final` | `100` | Maximum number of final ranked mutations returned |
 
 ### Scoring Weights
 
 | Parameter | Default | Description |
 |---|---:|---|
-| `w_gpr_s1` | `0.35` | GPR contribution during Stage 1 |
+| `w_gpr_s1` | `0.35` | Supervised-score contribution during Stage 1 (legacy parameter name) |
 | `w_esm2_s1` | `0.65` | ESM-2 contribution during Stage 1 |
-| `w_gpr_final` | `0.05` | GPR contribution in final scoring |
+| `w_gpr_final` | `0.05` | Supervised-score contribution in final scoring (legacy parameter name) |
 | `w_esm2_final` | `0.70` | ESM-2 contribution in final scoring |
 | `w_esmiF_final` | `0.25` | ESM-IF contribution in final scoring |
 
 ### Normalization
 
-All scores are normalized with:
+By default, scores are normalized with:
 
 - `robust_median_iqr` — robust median and interquartile-range scaling
 
@@ -204,7 +213,7 @@ Other supported methods:
 
 | Component | Model | Description |
 |---|---|---|
-| Supervised activity predictor | Task-specific, user-supplied | BLOSUM-based GPR in the Fz2 study; alternative regression scores can be supplied through the CSV override |
+| Supervised activity channel | Task-specific, user-supplied | A compatible serialized predictor or precomputed CSV; model training and selection occur outside the runner |
 | Evolutionary model | `esm2_t33_650M_UR50D` | 650M-parameter masked language model |
 | Structural model | `esm_if1_gvp4_t16_142M_UR50` | 142M-parameter inverse folding model loaded internally |
 
@@ -224,20 +233,22 @@ Other supported methods:
 
 ### Fixture smoke test
 
-The automated smoke test uses fixed CSV fixtures for GPR, ESM-2, and ESM-IF. It validates configuration parsing, mutation enumeration, score normalization and aggregation, ranking, and output schemas. **It is not a GPR, ESM-2, or ESM-IF model-inference test.** The same fixture test runs during the default Docker image build and in GitHub Actions.
+The automated smoke test uses fixed CSV fixtures for the supervised, ESM-2 and ESM-IF score channels. It validates configuration parsing, mutation enumeration, score normalization and aggregation, output generation, row counts and selected expected ranking results. **It is not a supervised-model, ESM-2 or ESM-IF inference test.** The same fixture test runs during the default Docker image build and in GitHub Actions.
 
 ### Full pipeline
 
-- Package and model versions are pinned in `environment.yml` and the Docker requirements files.
-- The runner performs deterministic inference and ranking from user-supplied inputs; it performs no supervised-model training, model selection, or random sampling.
-- The task-specific supervised model or its precomputed scores must be supplied by the user. ESM-2 and ESM-IF are fixed, pre-trained models loaded by the runner.
+- Application dependency versions are pinned in `environment.yml` and the Docker requirements files; the ESM model identifiers are fixed in the runner configuration.
+- For fixed inputs in a clean results directory, ranking is deterministic and the runner performs no supervised-model training, model selection or random sampling.
+- The task-specific supervised predictor or its precomputed scores must be supplied by the user. ESM-2 and ESM-IF are pre-trained models loaded by the runner.
+- When resuming, previously generated stage outputs are reused; use a new results directory or set `resume_runs=false` after changing inputs or configuration.
+- `wt_sequence` and the selected structure chain must use the same residue order and positional indexing.
 - ESM-2 and ESM-IF run in evaluation mode with gradient calculation disabled.
 - The default normalization is `robust_median_iqr`.
 - Small floating-point differences may occur across GPU models, CUDA versions, or PyTorch builds.
 
-Full inference is intentionally separate from the CPU smoke test because it requires an NVIDIA GPU, model downloads, a target structure, and a user-supplied task-specific supervised model or score CSV. The manuscript-specific trained GPR weights are not included in this repository; the prediction scores used for the reported figures are provided with the paper's supplementary and source data.
+Full inference is intentionally separate from the CPU smoke test because ESM-2 and ESM-IF are computationally intensive and require model downloads, a target structure and user-supplied supervised scores. An NVIDIA GPU is strongly recommended. Prediction scores reported in the manuscript are provided with the accompanying paper data files.
 
-The manual [GPU image build workflow](https://github.com/Jackson-Gold/EvoMax/actions/workflows/gpu-image-build.yml) validates the pinned CUDA environment and all full-pipeline imports without claiming end-to-end model-inference coverage.
+The manual [GPU image build workflow](https://github.com/Jackson-Gold/EvoMax/actions/workflows/gpu-image-build.yml) checks construction of the CUDA-linked image and imports required by the full pipeline; it does not execute GPU inference or provide end-to-end model-inference coverage.
 
 ---
 

@@ -97,7 +97,7 @@ top_k_final = 100  #@param {type:"integer"}
 
 # ── GPR model (joblib) ─────────────────────────────────────────────────────────
 gpr_model_path = "/content/GPR_BLOSUM.joblib"  #@param {type:"string"}
-#@markdown *Will be loaded with `joblib.load(gpr_model_path)`.*
+#@markdown *Will be loaded with `joblib.load(gpr_model_path)` and must accept the runner's WT-residue/position/mutant-residue feature interface. Other model scores should be supplied through `use_gpr_csv`.*
 
 # ── Weights & normalization ────────────────────────────────────────────────────
 # Stage‑1 (GPR + ESM‑2)
@@ -105,9 +105,9 @@ w_gpr_s1  = 0.35  #@param {type:"number"}
 w_esm2_s1 = 0.65  #@param {type:"number"}
 
 # Stage‑Final (GPR + ESM‑2 + ESM‑IF)
-w_gpr_final  = 0.10  #@param {type:"number"}
-w_esm2_final = 0.20  #@param {type:"number"}
-w_esmiF_final= 0.70  #@param {type:"number"}
+w_gpr_final  = 0.05  #@param {type:"number"}
+w_esm2_final = 0.70  #@param {type:"number"}
+w_esmiF_final= 0.25  #@param {type:"number"}
 
 normalization = "robust_median_iqr"  #@param ["zscore", "robust_median_iqr", "rank_percentile"]
 #@markdown *`robust_median_iqr` mirrors your notebook’s robust scaling approach.*
