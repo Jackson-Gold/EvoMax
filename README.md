@@ -37,7 +37,7 @@ This repository accompanies the manuscript accepted in principle at Nature Biote
 
 ### Project attribution
 
-**[Shijie Wan](https://github.com/sw152)** is the first author. The project was conceived by Shijie Wan and Xue Sherry Gao. EvoMax construction and predictions were carried out by Shijie Wan, [Jackson Gold](https://github.com/Jackson-Gold), [Pranay Vure](https://github.com/pvure), and Casey S. Mogilevsky in the Xue Sherry Gao Laboratory at the University of Pennsylvania.
+**[Shijie Wan](https://github.com/sw152)** is the first author. The project was conceived by Shijie Wan and Xue Sherry Gao. EvoMax construction and predictions were carried out by [Jackson Gold](https://github.com/Jackson-Gold), [Pranay Vure](https://github.com/pvure), and Casey S. Mogilevsky in the Xue Sherry Gao Laboratory at the University of Pennsylvania.
 
 ---
 
